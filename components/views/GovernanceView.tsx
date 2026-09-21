@@ -9,8 +9,8 @@ import { Input } from "@/components/ui/input";
 import { ChangeRequestModal } from "@/components/shared/ChangeRequestModal";
 import { UserChip } from "@/components/shared/UserChip";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import type { ChangeRequest, ChangeStatus } from "@/lib/types";
-import { Lock, Plus, Search, Check, X, Clock3 } from "lucide-react";
+import type { ApprovalStatus, ChangeRequest, ChangeStatus } from "@/lib/types";
+import { Lock, Plus, Search, Check, X, Clock3, Stamp } from "lucide-react";
 import { InfoTooltip } from "@/components/ui/tooltip";
 
 const STATUS_VARIANT: Record<ChangeStatus, "default" | "amber" | "green" | "red" | "blue"> = {
@@ -19,6 +19,12 @@ const STATUS_VARIANT: Record<ChangeStatus, "default" | "amber" | "green" | "red"
   Approved: "green",
   Rejected: "red",
   Deferred: "default",
+};
+
+const APPROVAL_VARIANT: Record<ApprovalStatus, "amber" | "green" | "red"> = {
+  Pending: "amber",
+  Approved: "green",
+  Rejected: "red",
 };
 
 const CATEGORY_LABEL: Record<ChangeRequest["category"], string> = {
@@ -32,6 +38,8 @@ export function GovernanceView() {
   const baselines = useProjectStore((s) => s.baselines);
   const changeRequests = useProjectStore((s) => s.changeRequests);
   const activities = useProjectStore((s) => s.activities);
+  const approvals = useProjectStore((s) => s.approvals);
+  const decideApproval = useProjectStore((s) => s.decideApproval);
   const lockNewBaseline = useProjectStore((s) => s.lockNewBaseline);
   const updateChangeRequestStatus = useProjectStore((s) => s.updateChangeRequestStatus);
 
@@ -193,6 +201,41 @@ export function GovernanceView() {
           {changeRequests.filter((cr) => !["Submitted", "UnderReview"].includes(cr.status)).length === 0 && (
             <p className="py-2 text-center text-sm text-slate-400">No decided change requests yet.</p>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Approvals */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-1.5">
+            <Stamp className="h-3.5 w-3.5" /> Approvals
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {approvals.map((approval) => (
+            <div key={approval.id} className="flex items-center gap-3 rounded-md border border-slate-100 px-3 py-2 text-sm">
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-slate-700">{approval.title}</p>
+                <p className="text-xs text-slate-400">
+                  {approval.entityType} &middot; {approval.entityId} &middot; Requested {formatDate(approval.requestedDate)}
+                  {approval.decisionDate && ` · Decided ${formatDate(approval.decisionDate)}`}
+                </p>
+              </div>
+              <UserChip userId={approval.approverId} />
+              {approval.status === "Pending" ? (
+                <div className="flex flex-none gap-1.5">
+                  <Button size="sm" variant="default" onClick={() => decideApproval(approval.id, "Approved", "")}>
+                    <Check className="h-3.5 w-3.5" /> Approve
+                  </Button>
+                  <Button size="sm" variant="destructive" onClick={() => decideApproval(approval.id, "Rejected", "")}>
+                    <X className="h-3.5 w-3.5" /> Reject
+                  </Button>
+                </div>
+              ) : (
+                <Badge variant={APPROVAL_VARIANT[approval.status]} className="flex-none">{approval.status}</Badge>
+              )}
+            </div>
+          ))}
         </CardContent>
       </Card>
 

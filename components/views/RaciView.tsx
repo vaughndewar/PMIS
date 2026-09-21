@@ -1,16 +1,19 @@
 "use client";
 
+import { useState } from "react";
 import { useProjectStore } from "@/lib/store/useProjectStore";
 import { useWbsTree } from "@/lib/store/selectors";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar } from "@/components/shared/UserChip";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, UserChip } from "@/components/shared/UserChip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { raciParticipantIds } from "@/lib/mock-data/seed";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import type { RaciRole } from "@/lib/types";
 import { InfoTooltip } from "@/components/ui/tooltip";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Plus } from "lucide-react";
 
 const ROLE_STYLE: Record<Exclude<RaciRole, null>, string> = {
   R: "bg-sky-100 text-sky-700 border-sky-200",
@@ -40,6 +43,9 @@ export function RaciView() {
   const raciEntries = useProjectStore((s) => s.raciEntries);
   const setRaciRole = useProjectStore((s) => s.setRaciRole);
   const stakeholders = useProjectStore((s) => s.stakeholders);
+  const communicationRecords = useProjectStore((s) => s.communicationRecords);
+  const addCommunicationRecord = useProjectStore((s) => s.addCommunicationRecord);
+  const [commForm, setCommForm] = useState({ channel: "", audience: "", summary: "" });
 
   const workPackages = wbsTree.flatMap((ca) => ca.children.filter((n) => n.type === "WorkPackage"));
   const participants = raciParticipantIds.map((id) => users.find((u) => u.id === id)!).filter(Boolean);
@@ -155,6 +161,43 @@ export function RaciView() {
                 })}
               </tbody>
             </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>Communications Log</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <Input placeholder="Channel (e.g. Status Email)" value={commForm.channel} onChange={(e) => setCommForm((f) => ({ ...f, channel: e.target.value }))} />
+            <Input placeholder="Audience" value={commForm.audience} onChange={(e) => setCommForm((f) => ({ ...f, audience: e.target.value }))} />
+            <div className="flex gap-2">
+              <Input placeholder="Summary" value={commForm.summary} onChange={(e) => setCommForm((f) => ({ ...f, summary: e.target.value }))} />
+              <Button
+                size="sm"
+                disabled={!commForm.channel.trim() || !commForm.summary.trim()}
+                onClick={() => {
+                  addCommunicationRecord({ channel: commForm.channel, audience: commForm.audience, summary: commForm.summary, authorId: "u-pm", relatedDecisionId: null });
+                  setCommForm({ channel: "", audience: "", summary: "" });
+                }}
+              >
+                <Plus className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            {[...communicationRecords].reverse().map((record) => (
+              <div key={record.id} className="flex items-start justify-between gap-3 rounded-md border border-slate-100 px-3 py-2 text-sm">
+                <div className="min-w-0">
+                  <p className="font-medium text-slate-700">{record.channel} <span className="text-xs font-normal text-slate-400">&middot; {record.audience}</span></p>
+                  <p className="text-xs text-slate-500">{record.summary}</p>
+                </div>
+                <div className="flex flex-none items-center gap-2 text-xs text-slate-400">
+                  <span>{formatDate(record.date)}</span>
+                  <UserChip userId={record.authorId} />
+                </div>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>

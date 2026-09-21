@@ -338,3 +338,156 @@ export interface User {
   avatarColor: string;
   initials: string;
 }
+
+// ---------------------------------------------------------------------------
+// 10. RAID — Issues & Assumptions (Risks live in section 8; Dependencies in section 4)
+// ---------------------------------------------------------------------------
+
+export type IssuePriority = "Low" | "Medium" | "High" | "Critical";
+export type IssueStatus = "Open" | "InProgress" | "Resolved" | "Closed";
+
+export interface Issue {
+  id: string;
+  projectId: string;
+  title: string;
+  description: string;
+  priority: IssuePriority;
+  status: IssueStatus;
+  ownerId: string;
+  raisedById: string;
+  raisedDate: string;
+  dueDate: string | null;
+  resolution: string;
+  linkedRiskId: string | null;
+}
+
+export type AssumptionStatus = "Unvalidated" | "Validated" | "Invalidated";
+
+export interface Assumption {
+  id: string;
+  projectId: string;
+  description: string;
+  category: string;
+  status: AssumptionStatus;
+  ownerId: string;
+  validateByDate: string;
+  impactIfInvalid: string;
+}
+
+// ---------------------------------------------------------------------------
+// 11. Decisions & Actions
+// ---------------------------------------------------------------------------
+
+export type DecisionStatus = "Proposed" | "Decided" | "Superseded";
+export type DecisionAffectedType = "WbsNode" | "Activity" | "Baseline" | "Risk" | "ChangeRequest" | "Charter" | "Other";
+
+export interface Decision {
+  id: string;
+  projectId: string;
+  title: string;
+  description: string;
+  rationale: string;
+  decisionOwnerId: string;
+  decisionDate: string;
+  status: DecisionStatus;
+  affectedEntityType: DecisionAffectedType;
+  affectedEntityId: string | null;
+  actionIds: string[];
+}
+
+export type ActionStatus = "Open" | "InProgress" | "Done";
+export type ActionSourceType = "Decision" | "Risk" | "Issue" | "Meeting" | "Other";
+
+export interface Action {
+  id: string;
+  projectId: string;
+  title: string;
+  ownerId: string;
+  dueDate: string;
+  status: ActionStatus;
+  sourceType: ActionSourceType;
+  sourceId: string | null;
+  completedDate: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// 12. Approvals
+// ---------------------------------------------------------------------------
+
+export type ApprovalStatus = "Pending" | "Approved" | "Rejected";
+export type ApprovalEntityType = "Charter" | "Baseline" | "ChangeRequest" | "Budget" | "Scope";
+
+export interface Approval {
+  id: string;
+  projectId: string;
+  title: string;
+  entityType: ApprovalEntityType;
+  entityId: string;
+  approverId: string;
+  status: ApprovalStatus;
+  requestedDate: string;
+  decisionDate: string | null;
+  notes: string;
+}
+
+// ---------------------------------------------------------------------------
+// 13. Resources (capacity, skills, allocation)
+// ---------------------------------------------------------------------------
+
+export interface ResourceAllocation {
+  id: string;
+  userId: string;
+  projectId: string;
+  roleOnProject: string;
+  skills: string[];
+  weeklyCapacityHours: number;
+  allocationPercent: number; // 0-100, share of capacity dedicated to this project
+}
+
+// ---------------------------------------------------------------------------
+// 14. Knowledge Management — Lessons Learned
+// ---------------------------------------------------------------------------
+
+export interface LessonLearned {
+  id: string;
+  projectId: string;
+  category: string;
+  situation: string;
+  rootCause: string;
+  recommendation: string;
+  submittedById: string;
+  date: string;
+  tags: string[];
+}
+
+// ---------------------------------------------------------------------------
+// 15. Status Reports & Communications
+// ---------------------------------------------------------------------------
+
+export type HealthRating = "Green" | "Amber" | "Red";
+
+export interface StatusReport {
+  id: string;
+  projectId: string;
+  periodStart: string;
+  periodEnd: string;
+  overallHealth: HealthRating;
+  scheduleHealth: HealthRating;
+  costHealth: HealthRating;
+  summary: string;
+  accomplishments: string[];
+  upcoming: string[];
+  authorId: string;
+  date: string;
+}
+
+export interface CommunicationRecord {
+  id: string;
+  projectId: string;
+  date: string;
+  channel: string;
+  audience: string;
+  summary: string;
+  authorId: string;
+  relatedDecisionId: string | null;
+}

@@ -3,18 +3,27 @@
 // 5 risks, 4 stakeholders, locked Baseline v1.0 with 1 pending Change Request.
 
 import type {
+  Action,
   Activity,
+  Approval,
+  Assumption,
   Baseline,
   ChangeRequest,
+  CommunicationRecord,
+  Decision,
   Dependency,
+  Issue,
+  LessonLearned,
   Phase,
   Portfolio,
   Program,
   Project,
   ProjectCharter,
   RaciEntry,
+  ResourceAllocation,
   Risk,
   Stakeholder,
+  StatusReport,
   User,
   WbsDictionaryEntry,
   WbsNode,
@@ -405,3 +414,381 @@ export const raciEntries: RaciEntry[] = [
 ];
 
 export const raciParticipantIds = raciParticipants;
+
+// ---------------------------------------------------------------------------
+// RAID — Issues & Assumptions
+// ---------------------------------------------------------------------------
+export const issues: Issue[] = [
+  {
+    id: "iss-1",
+    projectId: PROJECT_ID,
+    title: "Okta staging tenant rate-limits load test traffic",
+    description: "Load testing for SSO integration is being throttled by Okta's staging tenant rate limits, blocking realistic peak-volume validation.",
+    priority: "High",
+    status: "InProgress",
+    ownerId: "u-lead-be",
+    raisedById: "u-security",
+    raisedDate: "2025-03-10",
+    dueDate: "2025-03-28",
+    resolution: "Vendor ticket opened to raise staging tenant rate limits for the duration of load testing.",
+    linkedRiskId: "risk-1",
+  },
+  {
+    id: "iss-2",
+    projectId: PROJECT_ID,
+    title: "APAC translation vendor missed first localization milestone",
+    description: "Vendor delivered only 40% of Japanese and Korean strings by the agreed checkpoint.",
+    priority: "Medium",
+    status: "Open",
+    ownerId: "u-vendor",
+    raisedById: "u-lead-fe",
+    raisedDate: "2025-04-01",
+    dueDate: "2025-04-15",
+    resolution: "",
+    linkedRiskId: "risk-2",
+  },
+  {
+    id: "iss-3",
+    projectId: PROJECT_ID,
+    title: "Case Management UI fails accessibility contrast check",
+    description: "Automated a11y scan flagged insufficient contrast ratio on the new agent-assist status badges.",
+    priority: "Low",
+    status: "Resolved",
+    ownerId: "u-ux",
+    raisedById: "u-qa",
+    raisedDate: "2025-03-18",
+    dueDate: "2025-03-25",
+    resolution: "Badge color tokens updated to meet WCAG AA; verified by QA on 2025-03-24.",
+    linkedRiskId: null,
+  },
+];
+
+export const assumptions: Assumption[] = [
+  {
+    id: "asm-1",
+    projectId: PROJECT_ID,
+    description: "Okta identity provider integration is contractually available for the full project duration at no additional licensing cost.",
+    category: "Technical",
+    status: "Validated",
+    ownerId: "u-arch",
+    validateByDate: "2025-02-07",
+    impactIfInvalid: "Would require evaluating an alternate IdP mid-project, adding 4-6 weeks to the SSO work package.",
+  },
+  {
+    id: "asm-2",
+    projectId: PROJECT_ID,
+    description: "Regional content teams will deliver localized copy for all 12 markets on the agreed schedule.",
+    category: "Schedule",
+    status: "Invalidated",
+    ownerId: "u-vendor",
+    validateByDate: "2025-04-01",
+    impactIfInvalid: "APAC localization milestone slipped; see Issue iss-2 and Change Request CR-001.",
+  },
+  {
+    id: "asm-3",
+    projectId: PROJECT_ID,
+    description: "Legacy backend systems expose stable REST APIs sufficient for the new API Gateway without deep refactoring.",
+    category: "Technical",
+    status: "Unvalidated",
+    ownerId: "u-lead-be",
+    validateByDate: "2025-04-25",
+    impactIfInvalid: "Gateway build could require additional adapter work, impacting the Executing focus area schedule.",
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Decisions & Actions
+// ---------------------------------------------------------------------------
+export const decisions: Decision[] = [
+  {
+    id: "dec-1",
+    projectId: PROJECT_ID,
+    title: "Adopt Okta as sole identity provider for the portal re-platform",
+    description: "Selected Okta over building a custom auth layer, based on existing enterprise contract and faster time-to-value.",
+    rationale: "Okta is already licensed enterprise-wide; avoids 6+ weeks of custom auth development and ongoing security maintenance burden.",
+    decisionOwnerId: "u-sponsor",
+    decisionDate: "2025-01-22",
+    status: "Decided",
+    affectedEntityType: "WbsNode",
+    affectedEntityId: "wbs-3.1",
+    actionIds: ["act-item-1"],
+  },
+  {
+    id: "dec-2",
+    projectId: PROJECT_ID,
+    title: "Defer AI-assisted case summarization to a post-launch phase 2",
+    description: "Agent Assist UI will ship with manual case notes only at launch; AI summarization moves to a future enhancement.",
+    rationale: "Keeps the July launch date achievable within authorized budget; AI summarization adds estimated $80k and 6 weeks.",
+    decisionOwnerId: "u-pm",
+    decisionDate: "2025-03-05",
+    status: "Decided",
+    affectedEntityType: "WbsNode",
+    affectedEntityId: "wbs-3.2",
+    actionIds: ["act-item-2"],
+  },
+  {
+    id: "dec-3",
+    projectId: PROJECT_ID,
+    title: "Approve 10-day schedule extension for APAC localization",
+    description: "Pending CCB approval of CR-001; tentatively agreed in principle by the Sponsor and CX Director pending formal sign-off.",
+    rationale: "Protects launch quality for 4 of 12 markets rather than launching with incomplete translations.",
+    decisionOwnerId: "u-sponsor",
+    decisionDate: "2025-04-03",
+    status: "Proposed",
+    affectedEntityType: "ChangeRequest",
+    affectedEntityId: "CR-001",
+    actionIds: ["act-item-3"],
+  },
+];
+
+export const actions: Action[] = [
+  {
+    id: "act-item-1",
+    projectId: PROJECT_ID,
+    title: "Provision production Okta tenant and rotate API keys",
+    ownerId: "u-lead-be",
+    dueDate: "2025-02-14",
+    status: "Done",
+    sourceType: "Decision",
+    sourceId: "dec-1",
+    completedDate: "2025-02-12",
+  },
+  {
+    id: "act-item-2",
+    projectId: PROJECT_ID,
+    title: "Update product roadmap to reflect Phase 2 AI summarization",
+    ownerId: "u-pm",
+    dueDate: "2025-03-14",
+    status: "Done",
+    sourceType: "Decision",
+    sourceId: "dec-2",
+    completedDate: "2025-03-12",
+  },
+  {
+    id: "act-item-3",
+    projectId: PROJECT_ID,
+    title: "Prepare CCB briefing materials for CR-001 decision",
+    ownerId: "u-pm",
+    dueDate: "2025-04-09",
+    status: "InProgress",
+    sourceType: "Decision",
+    sourceId: "dec-3",
+    completedDate: null,
+  },
+  {
+    id: "act-item-4",
+    projectId: PROJECT_ID,
+    title: "File vendor ticket to raise Okta staging rate limits",
+    ownerId: "u-lead-be",
+    dueDate: "2025-03-20",
+    status: "Done",
+    sourceType: "Issue",
+    sourceId: "iss-1",
+    completedDate: "2025-03-17",
+  },
+  {
+    id: "act-item-5",
+    projectId: PROJECT_ID,
+    title: "Escalate APAC translation delay to vendor account manager",
+    ownerId: "u-vendor",
+    dueDate: "2025-04-08",
+    status: "Open",
+    sourceType: "Issue",
+    sourceId: "iss-2",
+    completedDate: null,
+  },
+  {
+    id: "act-item-6",
+    projectId: PROJECT_ID,
+    title: "Schedule InfoSec data-residency review for case management module",
+    ownerId: "u-security",
+    dueDate: "2025-04-30",
+    status: "Open",
+    sourceType: "Risk",
+    sourceId: "risk-4",
+    completedDate: null,
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Approvals
+// ---------------------------------------------------------------------------
+export const approvals: Approval[] = [
+  {
+    id: "apr-1",
+    projectId: PROJECT_ID,
+    title: "Project Charter Approval",
+    entityType: "Charter",
+    entityId: PROJECT_ID,
+    approverId: "u-sponsor",
+    status: "Approved",
+    requestedDate: "2025-01-07",
+    decisionDate: "2025-01-08",
+    notes: "Approved without changes.",
+  },
+  {
+    id: "apr-2",
+    projectId: PROJECT_ID,
+    title: "Performance Measurement Baseline v1.0 Lock",
+    entityType: "Baseline",
+    entityId: "bl-v1.0",
+    approverId: "u-sponsor",
+    status: "Approved",
+    requestedDate: "2025-02-09",
+    decisionDate: "2025-02-10",
+    notes: "Approved following review of target architecture and WBS.",
+  },
+  {
+    id: "apr-3",
+    projectId: PROJECT_ID,
+    title: "CR-001 Schedule & Cost Impact Approval",
+    entityType: "ChangeRequest",
+    entityId: "CR-001",
+    approverId: "u-sponsor",
+    status: "Pending",
+    requestedDate: "2025-04-03",
+    decisionDate: null,
+    notes: "Awaiting CCB session outcome.",
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Resource Allocations (capacity & responsibility)
+// ---------------------------------------------------------------------------
+export const resourceAllocations: ResourceAllocation[] = [
+  { id: "ra-1", userId: "u-pm", projectId: PROJECT_ID, roleOnProject: "Project Manager", skills: ["Governance", "Stakeholder Mgmt", "Risk Mgmt"], weeklyCapacityHours: 40, allocationPercent: 100 },
+  { id: "ra-2", userId: "u-sponsor", projectId: PROJECT_ID, roleOnProject: "Executive Sponsor", skills: ["Strategy", "Funding Decisions"], weeklyCapacityHours: 40, allocationPercent: 10 },
+  { id: "ra-3", userId: "u-arch", projectId: PROJECT_ID, roleOnProject: "Solutions Architect", skills: ["System Design", "Security Architecture", "Integration"], weeklyCapacityHours: 40, allocationPercent: 80 },
+  { id: "ra-4", userId: "u-lead-fe", projectId: PROJECT_ID, roleOnProject: "Frontend Lead", skills: ["React", "Accessibility", "Localization"], weeklyCapacityHours: 40, allocationPercent: 100 },
+  { id: "ra-5", userId: "u-lead-be", projectId: PROJECT_ID, roleOnProject: "Backend Lead", skills: ["Java", "API Design", "Identity & SSO"], weeklyCapacityHours: 40, allocationPercent: 100 },
+  { id: "ra-6", userId: "u-qa", projectId: PROJECT_ID, roleOnProject: "QA Lead", skills: ["Test Automation", "Regression", "Accessibility Testing"], weeklyCapacityHours: 40, allocationPercent: 75 },
+  { id: "ra-7", userId: "u-security", projectId: PROJECT_ID, roleOnProject: "Security & Compliance Officer", skills: ["InfoSec", "Data Privacy", "Pen Testing"], weeklyCapacityHours: 40, allocationPercent: 30 },
+  { id: "ra-8", userId: "u-ux", projectId: PROJECT_ID, roleOnProject: "UX Designer", skills: ["Research", "Prototyping", "Accessibility"], weeklyCapacityHours: 40, allocationPercent: 60 },
+  { id: "ra-9", userId: "u-cx", projectId: PROJECT_ID, roleOnProject: "Customer Support Director", skills: ["Support Ops", "Change Management"], weeklyCapacityHours: 40, allocationPercent: 25 },
+  { id: "ra-10", userId: "u-vendor", projectId: PROJECT_ID, roleOnProject: "Vendor Delivery Manager", skills: ["Localization Ops", "Vendor Mgmt"], weeklyCapacityHours: 40, allocationPercent: 50 },
+];
+
+// ---------------------------------------------------------------------------
+// Lessons Learned
+// ---------------------------------------------------------------------------
+export const lessonsLearned: LessonLearned[] = [
+  {
+    id: "ll-1",
+    projectId: PROJECT_ID,
+    category: "Vendor Management",
+    situation: "APAC localization vendor under-delivered against the first translation milestone with no early warning.",
+    rootCause: "No interim checkpoint was built into the vendor SOW between kickoff and the full-delivery milestone.",
+    recommendation: "Add weekly percent-complete checkpoints to future localization SOWs, with an escalation trigger at any checkpoint below 90% of plan.",
+    submittedById: "u-lead-fe",
+    date: "2025-04-02",
+    tags: ["vendor", "localization", "schedule"],
+  },
+  {
+    id: "ll-2",
+    projectId: PROJECT_ID,
+    category: "Architecture",
+    situation: "Target architecture review ran 3 days over plan because security review was scheduled after, not during, the design workshop.",
+    rootCause: "Security & Compliance was treated as a downstream reviewer rather than a co-design participant.",
+    recommendation: "Include Security as a core participant in architecture design workshops going forward, not a post-hoc gate.",
+    submittedById: "u-arch",
+    date: "2025-02-11",
+    tags: ["architecture", "security", "process"],
+  },
+  {
+    id: "ll-3",
+    projectId: PROJECT_ID,
+    category: "Testing",
+    situation: "Automated accessibility scanning caught a contrast issue late in the build cycle, requiring rework of shipped components.",
+    rootCause: "Accessibility checks were run only before UAT, not as part of each feature's definition of done.",
+    recommendation: "Add automated a11y scanning to the CI pipeline for every UI pull request, not just pre-UAT.",
+    submittedById: "u-qa",
+    date: "2025-03-25",
+    tags: ["quality", "accessibility", "automation"],
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Status Reports
+// ---------------------------------------------------------------------------
+export const statusReports: StatusReport[] = [
+  {
+    id: "sr-1",
+    projectId: PROJECT_ID,
+    periodStart: "2025-02-01",
+    periodEnd: "2025-02-28",
+    overallHealth: "Green",
+    scheduleHealth: "Green",
+    costHealth: "Amber",
+    summary: "Architecture and UX work packages progressing well. Architecture finished 3 days late due to a late-added security review, absorbed within float.",
+    accomplishments: [
+      "Target Architecture & ADR completed and approved by CCB",
+      "UX research and prototyping 40% complete",
+      "SSO integration kicked off with Okta staging tenant provisioned",
+    ],
+    upcoming: [
+      "Begin Case Management core workflow build",
+      "Kick off API Gateway build",
+      "Start multilingual CMS pipeline build",
+    ],
+    authorId: "u-pm",
+    date: "2025-03-01",
+  },
+  {
+    id: "sr-2",
+    projectId: PROJECT_ID,
+    periodStart: "2025-03-01",
+    periodEnd: "2025-03-31",
+    overallHealth: "Amber",
+    scheduleHealth: "Amber",
+    costHealth: "Red",
+    summary: "Cost performance has slipped below plan (CPI 0.87) driven by SSO integration rework and vendor localization delays. Change Request submitted to protect APAC launch quality.",
+    accomplishments: [
+      "SSO integration reached 65% complete",
+      "Case Management core workflows underway",
+      "Case Management UI accessibility issue found and resolved",
+    ],
+    upcoming: [
+      "CCB decision on CR-001 (APAC localization extension)",
+      "Continue Case Management and API Gateway build",
+      "Begin regional content localization for non-APAC markets",
+    ],
+    authorId: "u-pm",
+    date: "2025-04-01",
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Communication Records
+// ---------------------------------------------------------------------------
+export const communicationRecords: CommunicationRecord[] = [
+  {
+    id: "comm-1",
+    projectId: PROJECT_ID,
+    date: "2025-01-09",
+    channel: "Steering Committee Meeting",
+    audience: "Sponsor, Regional Business Owners",
+    summary: "Kickoff review of charter, success criteria, and governance cadence. Sponsor confirmed monthly steering committee cadence.",
+    authorId: "u-pm",
+    relatedDecisionId: null,
+  },
+  {
+    id: "comm-2",
+    projectId: PROJECT_ID,
+    date: "2025-03-01",
+    channel: "Status Email",
+    audience: "All Stakeholders",
+    summary: "Distributed February status report; flagged architecture schedule slip absorbed within float, no impact to overall timeline.",
+    authorId: "u-pm",
+    relatedDecisionId: null,
+  },
+  {
+    id: "comm-3",
+    projectId: PROJECT_ID,
+    date: "2025-04-03",
+    channel: "Sponsor 1:1",
+    audience: "Marcus Webb (Sponsor)",
+    summary: "Briefed sponsor on CR-001 rationale ahead of CCB session; sponsor indicated support pending formal review.",
+    authorId: "u-pm",
+    relatedDecisionId: "dec-3",
+  },
+];

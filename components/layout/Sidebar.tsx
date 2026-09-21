@@ -10,6 +10,11 @@ import {
   Flame,
   Users,
   Boxes,
+  ClipboardList,
+  Gavel,
+  UsersRound,
+  BookOpen,
+  FileBarChart,
 } from "lucide-react";
 import { useProjectStore, type ViewId } from "@/lib/store/useProjectStore";
 import { cn } from "@/lib/utils";
@@ -17,15 +22,20 @@ import { cn } from "@/lib/utils";
 const NAV: { id: ViewId; label: string; icon: React.ComponentType<{ className?: string }>; group: string }[] = [
   { id: "charter", label: "Charter & Canvas", icon: FileSignature, group: "Initiate & Plan" },
   { id: "wbs", label: "WBS Explorer", icon: ListTree, group: "Initiate & Plan" },
+  { id: "resources", label: "Resources & Capacity", icon: UsersRound, group: "Initiate & Plan" },
   { id: "board", label: "Board / List", icon: KanbanSquare, group: "Execute" },
   { id: "gantt", label: "Schedule & CPM Gantt", icon: GanttChartSquare, group: "Execute" },
   { id: "governance", label: "Governance & Change Control", icon: ShieldCheck, group: "Monitor & Control" },
   { id: "evm", label: "Finance & EVM Telemetry", icon: LineChart, group: "Monitor & Control" },
   { id: "risk", label: "Risk Heatmap & Register", icon: Flame, group: "Monitor & Control" },
+  { id: "raid", label: "RAID — Issues & Assumptions", icon: ClipboardList, group: "Monitor & Control" },
   { id: "raci", label: "Stakeholders & RACI", icon: Users, group: "Monitor & Control" },
+  { id: "decisions", label: "Decisions & Actions", icon: Gavel, group: "Govern & Learn" },
+  { id: "statusReports", label: "Status Reports", icon: FileBarChart, group: "Govern & Learn" },
+  { id: "lessons", label: "Lessons Learned", icon: BookOpen, group: "Govern & Learn" },
 ];
 
-const GROUPS = ["Initiate & Plan", "Execute", "Monitor & Control"];
+const GROUPS = ["Initiate & Plan", "Execute", "Monitor & Control", "Govern & Learn"];
 
 export function Sidebar() {
   const activeView = useProjectStore((s) => s.activeView);

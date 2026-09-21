@@ -10,7 +10,12 @@ import { GanttView } from "@/components/views/GanttView";
 import { GovernanceView } from "@/components/views/GovernanceView";
 import { EvmDashboardView } from "@/components/views/EvmDashboardView";
 import { RiskHeatmapView } from "@/components/views/RiskHeatmapView";
+import { RaidLogView } from "@/components/views/RaidLogView";
 import { RaciView } from "@/components/views/RaciView";
+import { DecisionsActionsView } from "@/components/views/DecisionsActionsView";
+import { ResourcesView } from "@/components/views/ResourcesView";
+import { LessonsLearnedView } from "@/components/views/LessonsLearnedView";
+import { StatusReportsView } from "@/components/views/StatusReportsView";
 import { LockedEditIntercept } from "@/components/shared/LockedEditIntercept";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -32,7 +37,12 @@ export default function Home() {
             {activeView === "governance" && <GovernanceView />}
             {activeView === "evm" && <EvmDashboardView />}
             {activeView === "risk" && <RiskHeatmapView />}
+            {activeView === "raid" && <RaidLogView />}
             {activeView === "raci" && <RaciView />}
+            {activeView === "decisions" && <DecisionsActionsView />}
+            {activeView === "resources" && <ResourcesView />}
+            {activeView === "lessons" && <LessonsLearnedView />}
+            {activeView === "statusReports" && <StatusReportsView />}
           </main>
         </div>
       </div>

@@ -3,29 +3,47 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
+  actions as seedActions,
   activities as seedActivities,
+  approvals as seedApprovals,
+  assumptions as seedAssumptions,
   baselines as seedBaselines,
   changeRequests as seedChangeRequests,
   charter as seedCharter,
+  communicationRecords as seedCommunicationRecords,
+  decisions as seedDecisions,
   dependencies as seedDependencies,
+  issues as seedIssues,
+  lessonsLearned as seedLessonsLearned,
   phases as seedPhases,
   portfolio as seedPortfolio,
   program as seedProgram,
   project as seedProject,
   raciEntries as seedRaciEntries,
+  resourceAllocations as seedResourceAllocations,
   risks as seedRisks,
   stakeholders as seedStakeholders,
+  statusReports as seedStatusReports,
   users as seedUsers,
   wbsDictionary as seedWbsDictionary,
   wbsNodes as seedWbsNodes,
 } from "@/lib/mock-data/seed";
 import type {
+  Action,
+  ActionStatus,
   Activity,
+  Approval,
+  ApprovalStatus,
+  Assumption,
   Baseline,
   ChangeCategory,
   ChangeRequest,
   ChangeStatus,
+  CommunicationRecord,
+  Decision,
   FocusArea,
+  Issue,
+  LessonLearned,
   Phase,
   Portfolio,
   Program,
@@ -33,8 +51,10 @@ import type {
   ProjectCharter,
   RaciEntry,
   RaciRole,
+  ResourceAllocation,
   Risk,
   Stakeholder,
+  StatusReport,
   User,
   WbsDictionaryEntry,
   WbsNode,
@@ -48,7 +68,12 @@ export type ViewId =
   | "governance"
   | "evm"
   | "risk"
-  | "raci";
+  | "raid"
+  | "raci"
+  | "decisions"
+  | "resources"
+  | "lessons"
+  | "statusReports";
 
 export interface PendingLockedEdit {
   activityId: string;
@@ -85,6 +110,27 @@ interface ProjectStoreState {
   // Stakeholders / RACI
   stakeholders: Stakeholder[];
   raciEntries: RaciEntry[];
+
+  // RAID — Issues & Assumptions
+  issues: Issue[];
+  assumptions: Assumption[];
+
+  // Decisions & Actions
+  decisions: Decision[];
+  actionsLog: Action[];
+
+  // Governance — Approvals
+  approvals: Approval[];
+
+  // Resources
+  resourceAllocations: ResourceAllocation[];
+
+  // Knowledge management
+  lessonsLearned: LessonLearned[];
+
+  // Status reports & communications
+  statusReports: StatusReport[];
+  communicationRecords: CommunicationRecord[];
 
   // UI state
   activeView: ViewId;
@@ -133,6 +179,26 @@ interface ProjectStoreState {
 
   setRaciRole: (wbsNodeId: string, stakeholderId: string, role: RaciRole) => void;
 
+  addIssue: (input: Omit<Issue, "id" | "projectId">) => void;
+  updateIssue: (id: string, patch: Partial<Issue>) => void;
+
+  addAssumption: (input: Omit<Assumption, "id" | "projectId">) => void;
+  updateAssumption: (id: string, patch: Partial<Assumption>) => void;
+
+  addDecision: (input: Omit<Decision, "id" | "projectId" | "actionIds">) => void;
+  updateDecisionStatus: (id: string, status: Decision["status"]) => void;
+
+  addAction: (input: Omit<Action, "id" | "projectId" | "completedDate">) => void;
+  updateActionStatus: (id: string, status: ActionStatus) => void;
+
+  decideApproval: (id: string, status: ApprovalStatus, notes: string) => void;
+
+  updateResourceAllocation: (id: string, patch: Partial<ResourceAllocation>) => void;
+
+  addLessonLearned: (input: Omit<LessonLearned, "id" | "projectId" | "date">) => void;
+
+  addCommunicationRecord: (input: Omit<CommunicationRecord, "id" | "projectId" | "date">) => void;
+
   resetToSeed: () => void;
 }
 
@@ -146,6 +212,14 @@ function nextChangeId(existing: ChangeRequest[]): string {
     return Number.isFinite(n) ? Math.max(m, n) : m;
   }, 0);
   return `CR-${String(max + 1).padStart(3, "0")}`;
+}
+
+function nextId(prefix: string, existing: { id: string }[]): string {
+  const max = existing.reduce((m, item) => {
+    const n = parseInt(item.id.replace(`${prefix}-`, ""), 10);
+    return Number.isFinite(n) ? Math.max(m, n) : m;
+  }, 0);
+  return `${prefix}-${max + 1}`;
 }
 
 function nextBaselineVersion(existing: Baseline[]): string {
@@ -173,6 +247,15 @@ const initialState = {
   risks: seedRisks,
   stakeholders: seedStakeholders,
   raciEntries: seedRaciEntries,
+  issues: seedIssues,
+  assumptions: seedAssumptions,
+  decisions: seedDecisions,
+  actionsLog: seedActions,
+  approvals: seedApprovals,
+  resourceAllocations: seedResourceAllocations,
+  lessonsLearned: seedLessonsLearned,
+  statusReports: seedStatusReports,
+  communicationRecords: seedCommunicationRecords,
   activeView: "board" as ViewId,
   focusAreaFilter: null as FocusArea | null,
   pendingLockedEdit: null as PendingLockedEdit | null,
@@ -344,11 +427,87 @@ export const useProjectStore = create<ProjectStoreState>()(
           return { raciEntries: entries };
         }),
 
+      addIssue: (input) =>
+        set((s) => ({
+          issues: [{ ...input, id: nextId("iss", s.issues), projectId: s.project.id }, ...s.issues],
+        })),
+
+      updateIssue: (id, patch) =>
+        set((s) => ({
+          issues: s.issues.map((i) => (i.id === id ? { ...i, ...patch } : i)),
+        })),
+
+      addAssumption: (input) =>
+        set((s) => ({
+          assumptions: [{ ...input, id: nextId("asm", s.assumptions), projectId: s.project.id }, ...s.assumptions],
+        })),
+
+      updateAssumption: (id, patch) =>
+        set((s) => ({
+          assumptions: s.assumptions.map((a) => (a.id === id ? { ...a, ...patch } : a)),
+        })),
+
+      addDecision: (input) =>
+        set((s) => ({
+          decisions: [{ ...input, id: nextId("dec", s.decisions), projectId: s.project.id, actionIds: [] }, ...s.decisions],
+        })),
+
+      updateDecisionStatus: (id, status) =>
+        set((s) => ({
+          decisions: s.decisions.map((d) => (d.id === id ? { ...d, status } : d)),
+        })),
+
+      addAction: (input) =>
+        set((s) => {
+          const id = nextId("act-item", s.actionsLog);
+          const action: Action = { ...input, id, projectId: s.project.id, completedDate: null };
+          const decisions =
+            input.sourceType === "Decision" && input.sourceId
+              ? s.decisions.map((d) => (d.id === input.sourceId ? { ...d, actionIds: [...d.actionIds, id] } : d))
+              : s.decisions;
+          return { actionsLog: [action, ...s.actionsLog], decisions };
+        }),
+
+      updateActionStatus: (id, status) =>
+        set((s) => ({
+          actionsLog: s.actionsLog.map((a) =>
+            a.id === id ? { ...a, status, completedDate: status === "Done" ? new Date().toISOString().slice(0, 10) : a.completedDate } : a
+          ),
+        })),
+
+      decideApproval: (id, status, notes) =>
+        set((s) => ({
+          approvals: s.approvals.map((a) =>
+            a.id === id ? { ...a, status, notes: notes || a.notes, decisionDate: new Date().toISOString().slice(0, 10) } : a
+          ),
+        })),
+
+      updateResourceAllocation: (id, patch) =>
+        set((s) => ({
+          resourceAllocations: s.resourceAllocations.map((r) => (r.id === id ? { ...r, ...patch } : r)),
+        })),
+
+      addLessonLearned: (input) =>
+        set((s) => ({
+          lessonsLearned: [
+            { ...input, id: nextId("ll", s.lessonsLearned), projectId: s.project.id, date: new Date().toISOString().slice(0, 10) },
+            ...s.lessonsLearned,
+          ],
+        })),
+
+      addCommunicationRecord: (input) =>
+        set((s) => ({
+          communicationRecords: [
+            { ...input, id: nextId("comm", s.communicationRecords), projectId: s.project.id, date: new Date().toISOString().slice(0, 10) },
+            ...s.communicationRecords,
+          ],
+        })),
+
       resetToSeed: () => set({ ...initialState }),
     }),
     {
       name: "pmi-work-management-store",
-      version: 1,
+      version: 2,
     }
   )
 );
