@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UserChip } from "@/components/shared/UserChip";
-import { InfoTooltip } from "@/components/ui/tooltip";
 import { cn, formatDate } from "@/lib/utils";
 import type { ActionStatus, DecisionStatus } from "@/lib/types";
 import { CheckCircle2, Circle, CircleDot, AlertTriangle } from "lucide-react";

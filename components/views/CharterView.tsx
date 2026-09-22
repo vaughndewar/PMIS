@@ -2,7 +2,6 @@
 
 import { useProjectStore } from "@/lib/store/useProjectStore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { UserChip } from "@/components/shared/UserChip";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { CheckCircle2, Circle } from "lucide-react";

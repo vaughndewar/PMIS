@@ -61,6 +61,7 @@ import type {
 } from "@/lib/types";
 
 export type ViewId =
+  | "assistant"
   | "charter"
   | "board"
   | "wbs"

@@ -11,7 +11,6 @@ import { formatDate } from "@/lib/utils";
 import type { AssumptionStatus, IssuePriority, IssueStatus } from "@/lib/types";
 
 const ISSUE_STATUS: IssueStatus[] = ["Open", "InProgress", "Resolved", "Closed"];
-const ISSUE_PRIORITY: IssuePriority[] = ["Low", "Medium", "High", "Critical"];
 const ASSUMPTION_STATUS: AssumptionStatus[] = ["Unvalidated", "Validated", "Invalidated"];
 
 const PRIORITY_VARIANT: Record<IssuePriority, "default" | "amber" | "red" | "blue"> = {
@@ -19,13 +18,6 @@ const PRIORITY_VARIANT: Record<IssuePriority, "default" | "amber" | "red" | "blu
   Medium: "default",
   High: "amber",
   Critical: "red",
-};
-
-const ISSUE_STATUS_VARIANT: Record<IssueStatus, "blue" | "amber" | "green" | "default"> = {
-  Open: "blue",
-  InProgress: "amber",
-  Resolved: "green",
-  Closed: "default",
 };
 
 const ASSUMPTION_STATUS_VARIANT: Record<AssumptionStatus, "amber" | "green" | "red"> = {

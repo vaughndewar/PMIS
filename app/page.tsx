@@ -16,6 +16,7 @@ import { DecisionsActionsView } from "@/components/views/DecisionsActionsView";
 import { ResourcesView } from "@/components/views/ResourcesView";
 import { LessonsLearnedView } from "@/components/views/LessonsLearnedView";
 import { StatusReportsView } from "@/components/views/StatusReportsView";
+import { AiAssistantView } from "@/components/views/AiAssistantView";
 import { LockedEditIntercept } from "@/components/shared/LockedEditIntercept";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -30,6 +31,7 @@ export default function Home() {
           <Header />
           <main className="flex-1 overflow-y-auto overflow-x-hidden">
 
+            {activeView === "assistant" && <AiAssistantView />}
             {activeView === "charter" && <CharterView />}
             {activeView === "wbs" && <WbsExplorerView />}
             {activeView === "board" && <BoardView />}

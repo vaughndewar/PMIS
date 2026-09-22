@@ -15,6 +15,7 @@ import {
   UsersRound,
   BookOpen,
   FileBarChart,
+  Sparkles,
 } from "lucide-react";
 import { useProjectStore, type ViewId } from "@/lib/store/useProjectStore";
 import { cn } from "@/lib/utils";
@@ -62,6 +63,19 @@ export function Sidebar() {
         <p className="truncate">
           Program: <span className="text-slate-600">{program.name}</span>
         </p>
+      </div>
+
+      <div className="border-b border-slate-100 px-2 py-2.5">
+        <button
+          onClick={() => setActiveView("assistant")}
+          className={cn(
+            "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-sm font-medium transition-colors",
+            activeView === "assistant" ? "bg-violet-600 text-white" : "bg-violet-50 text-violet-700 hover:bg-violet-100"
+          )}
+        >
+          <Sparkles className="h-4 w-4 flex-none" />
+          AI Assistant
+        </button>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-2 py-3">

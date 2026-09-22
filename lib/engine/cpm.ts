@@ -73,8 +73,7 @@ export function topologicalSort(
 function forwardConstraint(
   dep: Dependency,
   predES: number,
-  predEF: number,
-  succDuration: number
+  predEF: number
 ): { minStart?: number; minFinish?: number } {
   switch (dep.type) {
     case "FS": // successor starts after predecessor finishes (+lag)
@@ -91,8 +90,7 @@ function forwardConstraint(
 function backwardConstraint(
   dep: Dependency,
   succLS: number,
-  succLF: number,
-  predDuration: number
+  succLF: number
 ): { maxFinish?: number; maxStart?: number } {
   switch (dep.type) {
     case "FS": // predecessor must finish before successor starts (-lag)
@@ -138,7 +136,7 @@ export function runCpm(
     for (const dep of preds) {
       const predES = es.get(dep.predecessorId)!;
       const predEF = ef.get(dep.predecessorId)!;
-      const constraint = forwardConstraint(dep, predES, predEF, duration);
+      const constraint = forwardConstraint(dep, predES, predEF);
       if (constraint.minStart !== undefined) {
         minStart = Math.max(minStart, constraint.minStart);
       }
@@ -185,7 +183,7 @@ export function runCpm(
     for (const dep of succs) {
       const succLS = ls.get(dep.successorId)!;
       const succLF = lf.get(dep.successorId)!;
-      const constraint = backwardConstraint(dep, succLS, succLF, duration);
+      const constraint = backwardConstraint(dep, succLS, succLF);
       if (constraint.maxFinish !== undefined) {
         maxFinish = maxFinish === null ? constraint.maxFinish : Math.min(maxFinish, constraint.maxFinish);
       }
