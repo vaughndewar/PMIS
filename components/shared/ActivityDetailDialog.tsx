@@ -44,9 +44,11 @@ export function ActivityDetailDialog({ activityId, onOpenChange }: { activityId:
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{activity.name}</DialogTitle>
-          <DialogDescription className="flex items-center gap-2">
-            <UserChip userId={activity.assigneeId} />
-            {isBaselined && <Badge variant="violet" className="flex-none"><Lock className="h-3 w-3" /> Baselined</Badge>}
+          <DialogDescription asChild>
+            <div className="flex items-center gap-2">
+              <UserChip userId={activity.assigneeId} />
+              {isBaselined && <Badge variant="violet" className="flex-none"><Lock className="h-3 w-3" /> Baselined</Badge>}
+            </div>
           </DialogDescription>
         </DialogHeader>
 
